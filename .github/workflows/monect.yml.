@@ -1,0 +1,26 @@
+name: Cloud PC Monect (Natywny Wirtualny Pad)
+on: workflow_dispatch
+
+jobs:
+  run-pc:
+    runs-on: windows-latest
+    steps:
+      - name: 1. Instalacja Wirtualnej Grafiki i Kontrolera Xbox
+        shell: powershell
+        run: |
+          winget install "IddSampleDriver" --accept-source-agreements --accept-package-agreements
+          winget install "ViGEmBus" --accept-source-agreements --accept-package-agreements
+
+      - name: 2. Pobieranie i cicha instalacja Monect PC Remote Serwer
+        shell: powershell
+        run: |
+          Invoke-WebRequest -Uri "https://www.monect.com/download/PCRemoteReceiverSetup.exe" -OutFile "monect_setup.exe"
+          Start-Process -FilePath ".\monect_setup.exe" -ArgumentList "/S" -Wait
+
+      - name: 3. Start Serwera i konfiguracja
+        shell: powershell
+        run: |
+          Start-Process -FilePath "C:\Program Files (x86)\PC Remote Receiver\PCRemoteReceiver.exe"
+          Write-Host "Maszyna gotowa! Polacz sie przez IP w aplikacji PC Remote."
+          Start-Sleep -Seconds 20000
+          
