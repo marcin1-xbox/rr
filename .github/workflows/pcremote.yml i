@@ -8,38 +8,24 @@ jobs:
       - name: 1. Instalacja Wirtualnej Grafiki i Kontrolera Xbox
         shell: powershell
         run: |
-          # Instalujemy oficjalny sterownik ekranu, zeby gry i grafika ruszyly
           winget install "IddSampleDriver" --accept-source-agreements --accept-package-agreements
-          # Instalujemy sterownik padów, dzieki czemu aplikacja przesle wirtualnego pada jako kontroler Xbox
           winget install "ViGEmBus" --accept-source-agreements --accept-package-agreements
 
-      - name: 2. Pobieranie i cicha instalacja Monect PC Remote Serwer
+      - name: 2. Pobieranie i instalacja Monect
         shell: powershell
         run: |
-          # Pobieramy oficjalny instalator serwera Monect ze sprawnego zrodla
+          # Pobieramy plik
           Invoke-WebRequest -Uri "https://www.monect.com/download/PCRemoteReceiverSetup.exe" -OutFile "monect_setup.exe"
-          # Instalujemy w tle bez wyskakujacych okienek
+          # Czekamy chwilę, aby upewnić się, że plik jest w pełni zapisany
+          Start-Sleep -Seconds 10
+          # Uruchamiamy bezpośrednio przez polecenie start, co jest stabilniejsze
           Start-Process -FilePath ".\monect_setup.exe" -ArgumentList "/S" -Wait
+          Start-Sleep -Seconds 5
 
-      - name: 3. Start Serwera i konfiguracja polaczenia
+      - name: 3. Start Serwera
         shell: powershell
         run: |
-          # Uruchamiamy serwer Monect
+          # Odpalamy serwer
           Start-Process -FilePath "C:\Program Files (x86)\PC Remote Receiver\PCRemoteReceiver.exe"
-          
-          # Pobieramy i instalujemy darmowe Tailscale, zeby bez problemu polaczyc sie z telefonu po IP
-          Invoke-WebRequest -Uri "https://pkgs.tailscale.com/stable/tailscale-setup-latest.exe" -OutFile "ts.exe"
-          Start-Process -FilePath ".\ts.exe" -ArgumentList "/quiet" -Wait
-          
-          # Logowanie do Tailscale przez Twoj klucz (podmien klucz, jesli masz wlasny)
-          & "C:\Program Files\Tailscale\tailscale.exe" up --authkey=${{ secrets.TAILSCALE_AUTHKEY }} --unattended
-          
-          # Wyciagamy IP maszyny, abys wiedzial wpisac co w aplikacji
-          Write-Host "=========================================="
-          Write-Host "WYGENEROWANE IP MASZYNY Z TAILSCALE:"
-          & "C:\Program Files\Tailscale\tailscale.exe" ip -4
-          Write-Host "=========================================="
-
-      - name: 4. Podtrzymanie sesji (Maksimum RAM)
-        shell: powershell
-        run: Start-Sleep -Seconds 20000
+          Write-Host "Maszyna uruchomiona. Polacz sie w aplikacji PC Remote!"
+          Start-Sleep -Seconds 20000
