@@ -1,21 +1,21 @@
-name: Cloud PC Supremo (Stabilny)
+name: Cloud PC Supremo (Fix)
 on: workflow_dispatch
 
 jobs:
   run-pc:
     runs-on: windows-latest
     steps:
-      - name: 1. Konfiguracja
+      - name: 1. Instalacja
         shell: powershell
         run: |
           winget install "IddSampleDriver" --accept-source-agreements --accept-package-agreements
-          # Instalacja Supremo przez winget (zamiast ręcznego exe)
           winget install "Supremo" --accept-source-agreements --accept-package-agreements
 
-      - name: 2. Start Supremo
+      - name: 2. Uruchomienie
         shell: powershell
         run: |
-          # Uruchamiamy Supremo w tle
-          Start-Process -FilePath "C:\Program Files (x86)\Supremo\Supremo.exe"
-          Write-Host "Supremo wystartowało. Użyj ID i hasła z logów Supremo na pulpicie!"
+          # Znajdujemy plik wykonywalny Supremo w systemie i go uruchamiamy
+          $supremoPath = Get-ChildItem -Path "C:\Program Files*" -Filter "Supremo.exe" -Recurse | Select-Object -First 1
+          Start-Process -FilePath $supremoPath.FullName
+          Write-Host "Supremo uruchomione z lokalizacji: $($supremoPath.FullName)"
           Start-Sleep -Seconds 20000
